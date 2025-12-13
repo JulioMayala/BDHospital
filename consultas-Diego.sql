@@ -34,23 +34,34 @@ FROM physician doctor
     
 -- Ejercicio k
 
--- Añadimos la eliminación por cascada a todas aquellas tablas que tengan como FK el id de un paciente
-ALTER TABLE undergoes
-ADD FOREIGN KEY (patientId) REFERENCES patient(ssn)
-ON DELETE CASCADE;
+-- Borramos claves antiguas que no tenian ON DELETE CASCADE
+-- ibfk_x significa la x clave foranea
+ALTER TABLE prescribes DROP FOREIGN KEY  fk_prescribes_patient_cascade; 
 
-ALTER TABLE stay
-ADD FOREIGN KEY (patientId) REFERENCES patient(ssn)
-ON DELETE cascade;
+ALTER TABLE appointments DROP FOREIGN KEY appointments_ibfk_1; 
 
-ALTER TABLE prescribes
-ADD FOREIGN KEY (patientId) REFERENCES patient(ssn)
-ON DELETE cascade;
+ALTER TABLE stay DROP FOREIGN KEY stay_ibfk_1; 
 
-ALTER TABLE appointments
-ADD FOREIGN KEY (patientId) REFERENCES patient(ssn)
-ON DELETE cascade;
+ALTER TABLE undergoes DROP FOREIGN KEY undergoes_ibfk_1;
 
+-- Añadimos ON DELETE CASCADE
+ALTER TABLE prescribes 
+ADD CONSTRAINT fk_prescribes_patient_cascade 
+FOREIGN KEY (patientid) REFERENCES patient(ssn) ON DELETE CASCADE;
+
+ALTER TABLE appointments 
+ADD CONSTRAINT fk_appointments_patient_cascade 
+FOREIGN KEY (patientid) REFERENCES patient(ssn) ON DELETE CASCADE;
+
+ALTER TABLE stay 
+ADD CONSTRAINT fk_stay_patient_cascade 
+FOREIGN KEY (patientid) REFERENCES patient(ssn) ON DELETE CASCADE;
+
+ALTER TABLE undergoes 
+ADD CONSTRAINT fk_undergoes_patient_cascade 
+FOREIGN KEY (patientid) REFERENCES patient(ssn) ON DELETE CASCADE;
+
+SHOW CREATE TABLE prescribes;
 -- Creamos trigger:
 DELIMITER $$
 CREATE TRIGGER eliminar_paciente 
@@ -129,31 +140,46 @@ BEGIN
     
 
 -- Insertamos ejemplos para comprobar que funciona 
+-- 1. Insertamos al Médico (Physician) ID 100
+INSERT INTO physician VALUES (100, 'Dr. House', 'Jefe Medicina', 111111111);
 
 -- 1. Paciente 1000: ÉXITO (Solo actividad antigua: 01/01/2020)
 INSERT INTO patient VALUES (1000, 'Paciente OK', 'Dir. antigua', '111', 111, 100);
-INSERT INTO prescribes VALUES (100, 1000, 400, '01/01/2020', NULL, 10);
+INSERT INTO prescribes VALUES (100, 1000, 8, '01/01/2020', 10003, 10);
 INSERT INTO stay VALUES (1, 1000, 101, '01/01/2020', '05/01/2020');
 
 -- 2. Paciente 1001: ERROR Cita Futura (appointmentid = 10)
 INSERT INTO patient VALUES (1001, 'Error Cita', 'Dir. nueva', '222', 112, 100);
-INSERT INTO appointments VALUES (10, 1001, 200, 100, '01/03/2026', '01/03/2026', 'A101'); 
+INSERT INTO appointments VALUES (10, 1001, 112, 100, '01/03/2026', '01/03/2026', 'A101'); 
 
 -- 3. Paciente 1002: ERROR Procedimiento Futuro (stayid = 11)
 -- 1. Insertar el Paciente (Si no existe)
 INSERT INTO patient VALUES (1002, 'Error Proc. Futuro', 'Dir. nueva', '333', 113, 100);
 INSERT INTO stay VALUES (11, 1002, 101, '01/01/2025', '05/01/2025');
-INSERT INTO undergoes VALUES (1002, 300, 11, '01/06/2026', 100, 200);
+INSERT INTO undergoes VALUES (1002, 10, 11, '01/06/2026', 100, 112);
 
 -- 4. Paciente 1003: ERROR Prescripción Reciente (appointmentid = 12)
 INSERT INTO patient VALUES (1003, 'Presc. Reciente', 'Dir. nueva', '444', 114, 100);
-INSERT INTO appointments VALUES (12, 1003, 200, 100, '01/05/2024', '01/05/2024', 'A102'); 
-INSERT INTO prescribes VALUES (100, 1003, 400, '01/05/2024', 12, 10); 
+INSERT INTO appointments VALUES (12, 1003, 102, 100, '01/05/2024', '01/05/2024', 'A102'); 
+INSERT INTO prescribes VALUES (100, 1003, 1, '01/05/2024', 12, 10); 
 
 -- 5. Paciente 1004: ERROR Estancia Reciente (stayid = 13)
 INSERT INTO patient VALUES (1004, 'Estancia Reciente', 'Dir. nueva', '555', 115, 100);
 INSERT INTO stay VALUES (13, 1004, 101, '01/01/2023', '05/01/2023');
 
+-- Borra paciente
+DELETE FROM patient WHERE ssn = 1000;
+
+-- No borra (Cita futura)
+DELETE FROM patient WHERE ssn = 1001;
+
+-- No borra (Procedimiento futuro)
+DELETE FROM patient WHERE ssn = 1002;
+
+-- No borra (Prescripción reciente)
+DELETE FROM patient WHERE ssn = 1003;
+
+-- No borra (Estancia reciente)
 DELETE FROM patient WHERE ssn = 1004;
     
     
