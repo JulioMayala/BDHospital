@@ -14,10 +14,8 @@ WHERE medication.code
 			AND (YEAR(str_to_date(pres.date,'%d/%m/%Y')) = 2023 OR YEAR(str_to_date(pres.date,'%d/%m/%Y')) = 2024)
         ) AS T
 )		AND medication.description NOT LIKE '%Possible discontinuation%';
-     
-    UPDATE medication
-    SET medication.description = "N/A";
 
+-- Probamos
     SELECT * FROM medication m 
 			JOIN prescribes pres ON pres.medicationid = m.code
 			JOIN physician p ON pres.physicianid = p.employeeid
