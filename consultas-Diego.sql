@@ -22,7 +22,7 @@ INSERT INTO department (departmentid, name, head) VALUES (5, 'General Medicine',
 INSERT INTO physician VALUES (500, 'Dr. Alba Pruebas', 'Internista', 555555555);
 INSERT INTO affiliated_with (physicianid, departmentid, primary_affiliation) VALUES (500, 5, 1);
 
-INSERT INTO patient VALUES (550, 'Pac. Prueba Uno', 'Calle Falsa', '000000000', 1, 100);
+INSERT INTO patient VALUES (550, 'Pac. Prueba Uno', 'Calle Falsa', '000000000', 1, 500);
 
 INSERT INTO appointments (appointmentid, patientid, prepnurseid, physicianid, start_dt_time, end_dt_time, examinationroom)
 VALUES (55, 550, 101, 500, '01/01/2024', '01/01/2024', 'R1');
