@@ -52,7 +52,7 @@ FROM physician doctor
 
 -- Borramos claves antiguas que no tenian ON DELETE CASCADE
 -- ibfk_x significa la x clave foranea
-ALTER TABLE prescribes DROP FOREIGN KEY  fk_prescribes_patient_cascade; 
+ALTER TABLE prescribes DROP FOREIGN KEY  prescribes_ibfk_2; 
 
 ALTER TABLE appointments DROP FOREIGN KEY appointments_ibfk_1; 
 
